@@ -21,7 +21,7 @@ class APIKey{
     public function verifyKey($requestAPIKey){
         /*
          * This method checks an API Key that was sent in an API request to see if it matches our company's API key.
-          */
+         */
         try{
             $this->requestAPIKey = $requestAPIKey;
             if($this->requestAPIKey === $this->companyAPIKey){
