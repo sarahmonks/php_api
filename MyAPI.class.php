@@ -48,14 +48,19 @@ class MyAPI extends API{
 
       
     }
-
+    /**
+     * googleMapAPIKey Endpoint
+     * Format: domain.com/googleMapAPIKey?apiKey=12345678...
+     * A HTTP GET request is performed on the client side to this endpoint in order to retrieve the Google Map API key
+     * which we have stored in a private folder on the server.
+     * This key is necessary in order to make requests to the Google Maps API. 
+     * We return JSON output containing the Google Maps API key.
+     */
     protected function googleMapAPIKey(){
       if ($this->method == 'GET'){
           $data = array(); //an array to hold the data returned to the client
           $MapAPIKey = new MapAPIKey(GOOGLEMAPAPIKEY);
           $data['googleMapAPIKey'] = $MapAPIKey->getMapAPIKey();
-
-
           return $data;
       }else{
           throw new Exception("Only accepts GET requests");
