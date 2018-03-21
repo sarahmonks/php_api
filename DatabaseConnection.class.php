@@ -4,123 +4,115 @@
  * 
  */
 class DatabaseConnection{
+    private $query;
+    private $statement;
+    private static $instance = null;	
+    private $pdoConnection;
+    private $ErrorHandler;
+    private $Validator;
 
-	private $query;
-	private $statement;
-	private static $instance = null;	
-	private $pdoConnection;
-	private $ErrorHandler;
-	private $Validator;
+    public function __construct(){
+        $this->ErrorHandler = new ErrorHandler("DatabaseConnection");
+        try{
+            //construct a new PDO object.
+            $this->pdoConnection = new PDO(HOSTDBNAME, USER, PASSWORD);
+            $this->pdoConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            $this->pdoConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->pdoConnection->exec("SET CHARACTER SET utf8mb4");
+        }catch(PDOException $e){ 
+        	$this->ErrorHandler->createLogEntry("construct", $e->getMessage());
+            throw new Exception("Error connecting to database ");
+        }
+        $this->Validator = new Validator();
+    }
 
-	public function __construct(){
-                $this->ErrorHandler = new ErrorHandler("DatabaseConnection");
-                try{
-		//construct a new PDO object.
-		$this->pdoConnection = new PDO(HOSTDBNAME, USER, PASSWORD);
-		$this->pdoConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-		$this->pdoConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$this->pdoConnection->exec("SET CHARACTER SET utf8mb4");
-                }catch(PDOException $e){ 
-                  $this->ErrorHandler->createLogEntry("construct", $e->getMessage());
-                  throw new Exception("Error connecting to database ");
-                }
-		$this->Validator = new Validator();
-
-	}
-	public static function getInstance(){
-		if(!isset(self::$instance)){ // Check if the instance is not set.
-			//create a new DatabaseConnection instance which will execute the code in the above constructor.			
-			self::$instance = new DatabaseConnection();	
-		}
-		return self::$instance;	
-	}
-	public function createNewFacebookUser($facebookUserID, $facebookName, $profilePicURL, $userPrivilegeID){
-		/*
-		 * This method takes in a users facebook credentials as parameters and inserts them to our facebook_users table.
-		 * If successfully inserted then we return an array containing the userID value.
-		 * If unsuccessful return an exception
-		 * 
-		 */
-		$userID = null;
-		try{
-			$this->query  = "INSERT INTO facebook_users (facebookUserID, facebookName, profilePicURL, userPrivilegeID) VALUES (:facebookUserID, :facebookName, :profilePicURL, :userPrivilegeID)";
-			$this->statement = $this->pdoConnection->prepare($this->query);
-			$this->statement->bindValue(':facebookUserID', $facebookUserID, PDO::PARAM_STR);
-			$this->statement->bindValue(':facebookName', $facebookName, PDO::PARAM_STR);
-			
-			$this->statement->bindValue(':profilePicURL', $profilePicURL, PDO::PARAM_STR);
-			$this->statement->bindValue(':userPrivilegeID', $userPrivilegeID, PDO::PARAM_INT);
-		
-			$this->statement->execute();
-			$userID = $this->pdoConnection->lastInsertId();	
-			
-			return $userID;
-		}catch(PDOException $e){
-		    //create a log entry to record the error message
-			$this->ErrorHandler->createLogEntry("createNewFacebookUser", $e->getMessage());
-			throw new Exception("Error logging in facebook user");
-			
-		}
+    public static function getInstance(){
+        if(!isset(self::$instance)){ // Check if the instance is not set.
+            //create a new DatabaseConnection instance which will execute the code in the above constructor.			
+            self::$instance = new DatabaseConnection();	
+        }
+        return self::$instance;	
 	}
 
-	public function checkFacebookID($facebookUserID){
-		/*
-		 * This method checks to see if a users facebook id exists in our facebook_users table.
-		 * If it does exist then we get the userID value from our database for this record and return it.
-		 * If it doesn't exist then the userID returned from this method will be null.
-		 */
-		$userID = null;
-		try{
-
-			$this->query = "SELECT userID FROM facebook_users WHERE facebookUserID = :facebookUserID LIMIT 1";
-  			$this->statement = $this->pdoConnection->prepare($this->query);
-			$this->statement->bindValue(':facebookUserID', $facebookUserID, PDO::PARAM_STR); 
-			$this->statement->execute();
-			$this->statement->setFetchMode(PDO::FETCH_ASSOC);		
-			while($row = $this->statement->fetch()){
-				$userID = $row['userID'];
-			}
+    public function createNewFacebookUser($facebookUserID, $facebookName, $profilePicURL, $userPrivilegeID){
+        /*
+         * This method takes in a users facebook credentials as parameters and inserts them to our facebook_users table.
+         * If successfully inserted then we return an array containing the userID value.
+         * If unsuccessful return an exception
+         * 
+         */
+        $userID = null;
+        try{
+            $this->query  = "INSERT INTO facebook_users (facebookUserID, facebookName, profilePicURL, userPrivilegeID) VALUES (:facebookUserID, :facebookName, :profilePicURL, :userPrivilegeID)";
+            $this->statement = $this->pdoConnection->prepare($this->query);
+            $this->statement->bindValue(':facebookUserID', $facebookUserID, PDO::PARAM_STR);
+            $this->statement->bindValue(':facebookName', $facebookName, PDO::PARAM_STR);
+            $this->statement->bindValue(':profilePicURL', $profilePicURL, PDO::PARAM_STR);
+            $this->statement->bindValue(':userPrivilegeID', $userPrivilegeID, PDO::PARAM_INT);
+            $this->statement->execute();
+            $userID = $this->pdoConnection->lastInsertId();	
             return $userID;
-    	}catch(PDOException $e){
-    	    //create a log entry to record the error message
-		    $this->ErrorHandler->createLogEntry("checkFacebookID", $e->getMessage());
-		     throw new Exception("Error checking facebook user ID");
-	
-		}     	
-	}
+        }catch(PDOException $e){
+            //create a log entry to record the error message
+            $this->ErrorHandler->createLogEntry("createNewFacebookUser", $e->getMessage());
+            throw new Exception("Error logging in facebook user");
+        }
+    }
 
+    public function checkFacebookID($facebookUserID){
+        /*
+         * This method checks to see if a users facebook id exists in our facebook_users table.
+         * If it does exist then we get the userID value from our database for this record and return it.
+         * If it doesn't exist then the userID returned from this method will be null.
+         */
+        $userID = null;
+        try{
+            $this->query = "SELECT userID FROM facebook_users WHERE facebookUserID = :facebookUserID LIMIT 1";
+            $this->statement = $this->pdoConnection->prepare($this->query);
+            $this->statement->bindValue(':facebookUserID', $facebookUserID, PDO::PARAM_STR); 
+            $this->statement->execute();
+            $this->statement->setFetchMode(PDO::FETCH_ASSOC);		
+            while($row = $this->statement->fetch()){
+                $userID = $row['userID'];
+            }
+            return $userID;
+        }catch(PDOException $e){
+            //create a log entry to record the error message
+            $this->ErrorHandler->createLogEntry("checkFacebookID", $e->getMessage());
+            throw new Exception("Error checking facebook user ID");
+        }     	
+    }
 
-
-	public function getUserProfile($userID){
-		/* 
-		 * This method takes in a userID as a parameter and gets that user's data from the profiles table in the database
-		 */
-		$userDetails = array();
-		try{
-			$this->query ="SELECT * FROM facebook_users WHERE userID = :userID LIMIT 1";
-  			$this->statement = $this->pdoConnection->prepare($this->query);
-			$this->statement->bindValue(':userID', $userID, PDO::PARAM_INT); 
-			$this->statement->execute();
-			$this->statement->setFetchMode(PDO::FETCH_ASSOC);
-		    $count = 0;
-			while($row = $this->statement->fetch()){
-				//store the data from the result of the query into an associative array. 
-				$userDetails = $row;
-				$count++;
-			}
-			if($count > 0){
-        	return $userDetails;
-        	}else{
+    public function getUserProfile($userID){
+        /* 
+         * This method takes in a userID as a parameter and gets that user's data from the profiles table in the database
+         */
+        $userDetails = array();
+        try{
+            $this->query ="SELECT * FROM facebook_users WHERE userID = :userID LIMIT 1";
+            $this->statement = $this->pdoConnection->prepare($this->query);
+            $this->statement->bindValue(':userID', $userID, PDO::PARAM_INT); 
+            $this->statement->execute();
+            $this->statement->setFetchMode(PDO::FETCH_ASSOC);
+            $count = 0;
+            while($row = $this->statement->fetch()){
+                //store the data from the result of the query into an associative array. 
+                $userDetails = $row;
+                $count++;
+            }
+            if($count > 0){
+                return $userDetails;
+            }else{
                 //create a log entry to record the error message
-        		$this->ErrorHandler->createLogEntry("getUserProfile", "userID is not valid");
-        		//throw new Exception("Error getting user profile");
-        	}	
-		}catch(PDOException $e){
-		    //create a log entry to record the error message
-		    $this->ErrorHandler->createLogEntry("getUserProfile", $e->getMessage());
-           // throw new Exception("Error getting user profile");
-		}	
-	}
+                $this->ErrorHandler->createLogEntry("getUserProfile", "userID is not valid");
+                //throw new Exception("Error getting user profile");
+            }	
+        }catch(PDOException $e){
+            //create a log entry to record the error message
+            $this->ErrorHandler->createLogEntry("getUserProfile", $e->getMessage());
+            // throw new Exception("Error getting user profile");
+        }	
+    }
 
 
     public function getAllStationsMapData(){
