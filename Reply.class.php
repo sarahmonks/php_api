@@ -4,43 +4,42 @@
  */
 class Reply{
 
-	private $DatabaseConnection;
-	private $ErrorHandler;
-	private $Validator;
-
+    private $DatabaseConnection;
+    private $ErrorHandler;
+    private $Validator;
     private $replyID = null; 
     private $reviewID;   
     private $userID;  
     private $replyText;    
     private $replyTime;    
 
-	public function __construct(){
-		$this->DatabaseConnection = DatabaseConnection::getInstance();
-		$this->ErrorHandler = new ErrorHandler("Reply");
-	    $this->Validator = new Validator();
-	}
+    public function __construct(){
+        $this->DatabaseConnection = DatabaseConnection::getInstance();
+        $this->ErrorHandler = new ErrorHandler("Reply");
+        $this->Validator = new Validator();
+    }
 
-	public function getReviewReplies($reviewID){
-		/*
-		 * This method takes in a reviewID and gets all replies related to that reviewID.
-		 */
+    public function getReviewReplies($reviewID){
+        /*
+         * This method takes in a reviewID and gets all replies related to that reviewID.
+         */
 
         $this->reviewID = $reviewID;
         $replyData = array(); //initialize the $replyData array which will store the data we return from this method.
         //get the reply data from the database. 
         foreach($this->DatabaseConnection->getReviewReplyData($this->reviewID) as $key => $value){	
             array_push(
-            	$replyData, array(
-            		'replyID' => $value['replyID'],
+                $replyData, array(
+                    'replyID' => $value['replyID'],
                     'reviewID' => $value['reviewID'],
-					'replyText' => $this->Validator->cleanUserInput($value['replyText']),
-		            'replyTime' => date("jS F Y H:i", $value['replyTime']), 
-		            'replyUserData' => $this->DatabaseConnection->getUserProfile($value['userID'])
-		            )
-            	); 
+                    'replyText' => $this->Validator->cleanUserInput($value['replyText']),
+                    'replyTime' => date("jS F Y H:i", $value['replyTime']), 
+                    'replyUserData' => $this->DatabaseConnection->getUserProfile($value['userID'])
+                    )
+                ); 
         }
-	    return $replyData;
-	}
+        return $replyData;
+    }
 
     public function getReplyUserID($replyID){
         /*
@@ -50,14 +49,13 @@ class Reply{
          */
         $this->replyID = $replyID;
         $this->userID = $this->DatabaseConnection->getReplyUserID($this->replyID);
-	    return $this->userID;
+        return $this->userID;
     }
-
 
     public function createReply($userID, $replyText, $reviewID){
         /*
-		 * This method takes in a userID, replyText and a reviewID and calls the createReply method from the DatabaseConnection class.
-		 */
+         * This method takes in a userID, replyText and a reviewID and calls the createReply method from the DatabaseConnection class.
+         */
         $this->userID = $userID;
         $this->replyText = $replyText;
         $this->reviewID = $reviewID;
@@ -75,14 +73,13 @@ class Reply{
         $this->DatabaseConnection->updateReply($this->replyID, $this->replyText);
     }
 
-	public function deleteReply($replyID){
+    public function deleteReply($replyID){
         /*
-		 * This method takes in a replyID and calls the deleteReply method from the DatabaseConnection class.
-		 */
+         * This method takes in a replyID and calls the deleteReply method from the DatabaseConnection class.
+         */
         $this->replyID = $replyID;
         $this->DatabaseConnection->deleteReply($this->replyID);
-	}
-
+    }
 }
 
 ?>
