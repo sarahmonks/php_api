@@ -25,8 +25,8 @@ class APIKey{
         try{
             $this->requestAPIKey = $requestAPIKey;
             if($this->requestAPIKey === $this->companyAPIKey){
-        	    $this->keyIsValid = true;
-        	    return $this->keyIsValid;
+                $this->keyIsValid = true;
+                return $this->keyIsValid;
             }else{
                 return false;
             }
