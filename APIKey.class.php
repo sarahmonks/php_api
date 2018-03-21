@@ -23,13 +23,13 @@ class APIKey{
          * This method checks an API Key that was sent in an API request to see if it matches our company's API key.
           */
         try{
-        	$this->requestAPIKey = $requestAPIKey;
-        	if($this->requestAPIKey === $this->companyAPIKey){
-        		$this->keyIsValid = true;
-        		return $this->keyIsValid;
-        	}else{
-        		return false;
-        	}
+            $this->requestAPIKey = $requestAPIKey;
+            if($this->requestAPIKey === $this->companyAPIKey){
+        	    $this->keyIsValid = true;
+        	    return $this->keyIsValid;
+            }else{
+                return false;
+            }
         }catch(Exception $e){
             //create a log entry to record the error message
             $this->ErrorHandler->createLogEntry("verifyKey", $e->getMessage());
