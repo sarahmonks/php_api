@@ -3,18 +3,17 @@
  * A class for handling errors and exceptions in our php application.
  */
 class ErrorHandler{
-
-	private $className;
+    private $className;
     private $methodName;
     private $errorMessage;
     private $logEntry;
 
-	public function __construct($className){
+    public function __construct($className){
         /*
          * Constructor takes in the name of the class where the error/exception has occurred.
          */
         $this->className = $className;
-	}
+    }
 
     public function createLogEntry($methodName, $errorMessage){
         /*
@@ -28,7 +27,6 @@ class ErrorHandler{
         //Save string to log, use FILE_APPEND to append.
         file_put_contents('./errorlog_.txt', $this->logEntry, FILE_APPEND);
     }
-
 }
 
 ?>
