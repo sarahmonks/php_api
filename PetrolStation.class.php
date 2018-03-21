@@ -8,7 +8,7 @@ class PetrolStation{
     private $ErrorHandler;
     private $Review; //to store an instance of the Review class
     private $stationID = null;    //initialize the stationID to null
-   	private $stationName; 
+    private $stationName; 
     private $stationAddressLine1;    
     private $stationAddressLine2;
     private $stationAddressLine3;
