@@ -540,42 +540,5 @@ class MyAPI extends API{
         }
     }
 
-
-
-    /**
-     * facebookProfile Endpoint Not using currently 
-     * Get the facebook profile of a user
-     */
-    protected function facebookProfile(){
-        if ($this->method == 'GET') {
-            $facebookUserID = '10213718552614326';
-            $facebookName = 'La';
-            $profilePicURL = 'https://scontent.xx.fbcdn.net/v/t1.0-1/p50x50/21617751_10213716829451248_7798041643913998634_n.jpg?oh=7242e13b731a211fa7ac77ed443ec96f&oe=5A483F35';
-            //  $userID = $parameters[0];
-
-            //Use the Validator class to validate our inputs.
-            $this->Validator = new Validator();
-            $inputsAreValid = $this->Validator->checkInputsAreValid(array(array("input" => $facebookUserID, "minLength" => 10, "maxLength" => 30), 
-                                                                          array("input" => $facebookName, "minLength" => 2, "maxLength" => 40),
-                                                                          array("input" => $profilePicURL, "minLength" => 10, "maxLength" => 250))); 
-            if($inputsAreValid){
-                //If the inputs are valid then filter them.
-                $filteredInputs = $this->Validator->filterInputs(array(array("input" => $facebookUserID, "filterMethod" => FILTER_SANITIZE_NUMBER_INT),
-                                                                      array("input" => $facebookName, "filterMethod" => FILTER_SANITIZE_STRING),
-                                                                      array("input" => $profilePicURL, "filterMethod" => FILTER_SANITIZE_STRING)));
-            }
-       
-           // return "Your name is " . $this->args[0] . json_encode($filteredInputs);
-            $this->FacebookUser = new FacebookUser();
-            $facebookProfileData = $this->FacebookUser->checkFacebookDetails($filteredInputs[0], $filteredInputs[1], $filteredInputs[2]); 
-
-  
-            return $facebookProfileData;
-        } else {
-            $errorMessage = array("error" => "Only accepts GET requests");
-            return $errorMessage;
-        }
-    }
-
 }
 ?>
