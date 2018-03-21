@@ -27,6 +27,7 @@ class PetrolStation{
 
     public function getAllStationsMapData(){
         /*
+         * This method calls the getAllStationsMapData() method from the DatabaseConnection class in order to get all the stations map data.
          */
         $allStationsPositionData = array();
         foreach($this->DatabaseConnection->getAllStationsMapData() as $key => $value){	
